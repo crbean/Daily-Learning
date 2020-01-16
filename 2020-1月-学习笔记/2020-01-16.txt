@@ -1,0 +1,71 @@
+1：mysql查询优化器的局限性
+1.1 关联子查询
+mysql的子查询实现的非常糟糕，最糟糕的一类时where天降中包含In（）的子查询。
+例：
+select * from film
+where film id in(
+	select film_id from file_actor where actor_id = 1
+)
+MySQL会见相关的外层表压倒子查询中，它任务这样可以更高效率的查到数据行
+==>
+select * from film
+where exist (
+ select * from file_actor where actor_id = 1 and file_actor.film_id = film.film_id
+)
+1.1.1 改进方案一
+select * from film
+	inner join file_actor using(film_id)
+where actor_id = 1
+
+1.1.2 改进方案二
+select * from film
+where exist(
+	select * from file_actor where actor_id = 1
+		and file_actor.film_id = film.film_id
+)
+
+1.1.3 如何用好关联子查询
+一般使用left outer join 重新查询。具体还得根据测试结果来判断。
+
+1.2 Union的限制
+(select * from film_1) union (select * from file_2) limit 20;
+此时会吧表一和表二的信息放在同一个临时表中，然后再取出前20条记录
+
+1.2.1 改进方案
+(select * from film_1 limit 20) union (select * from file_2 limit 20) limit 20;
+
+1.3 索引合并优化
+5.0之后的版本 mysql已经可以访问单个表的多个索引以合并何交叉过来的范式来定位需要查找的行
+
+1.4 等值传递 （很少会碰到）
+
+1.5 并行执行 （暂时mysql做不到，不支持）
+
+1.6 哈希关联 （MariaDB已经实现了哈希关联）
+
+1.7 松散索引扫描（不支持）
+
+1.8 最大值最小值优化
+前提id自增长
+select min(id) from film where name = "aini"
+改进方案
+select id from film use index(primary) where name = "aini" limit 1;
+
+1.9 在同一个表上查询何更新
+update tb1 as outer_tb1 
+	set cnt = (
+		select count(1) from tb1 as inner_tb1
+		where inner_tb1.type = outer_tb1.type
+	)
+error 1093:you cannot sprcify target table 'outer_tb1' for update in from clause
+
+可以通过使用生成表的形式绕过限制
+
+update tb1
+	inner join(
+		select type,count(1) as cnt 
+		from tb1
+		group by type
+	) as der using(type)
+set tb1.cnt = der.cnt;
+
