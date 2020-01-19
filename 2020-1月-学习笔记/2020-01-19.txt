@@ -1,0 +1,19 @@
+1.1.4 SQL_SMALL_RESULT 和 SQL_BIG_RESULT
+SQL_SMALL_RESULT 告诉优化去结果集很小，可以将结果集放在内存中的索引临时表，以避免排顺序操作
+SQL_BIG_RESULT 告诉结果集可能会非常大，建议用磁盘临时表做排序操作
+1.1.5 SQL_BUFFER_RESULT
+告诉优化器检查下结果放入到一个临时表，然后尽可能快的释放表锁。
+1.1.6 SQL_CACHE 和 SQL_NO_CACHE
+这个提示告诉MySQL这个结果集是否应该缓存在查询缓存中
+1.1.7 SQL_CALC_FOUND_ROWS
+提示MySQL会计算出去LIMIT子句后这个查询要返回的数据集的总数，而实际上只返回LIMIT要求的结果集。可以通过FOUND_ROW()获得这个值
+1.1.8 FOR UPDATE 和 LOCK IN SHARE MODE
+控制SELECT语句的锁机制，只对实现了行级锁的存储引擎有效（InnoDB）
+USE INDEX、IGNORE INDEX和FORCE INDEX
+告诉优化器使用或者不使用那些索引来查询记录。
+1.1.9 optimizer_search_depth
+告诉优化去在穷举执行计划时的限度
+1.1.10 optimizer_purne_level
+默认打开的，会让优化器根据扫描的函数来决定是否跳过某些执行计划
+1.1.11 optimizer_switch
+包含了一些开启/关闭优化器特性的标识位。
