@@ -1,0 +1,24 @@
+1：优化特定类的查询
+1.1：优化count()查询
+1.1.1 简单优化
+MyISAM 统计 count() 非常快，在没有任何where条件的情况下
+select count(*) from city where id > 5
+==>
+select (select count(*) from city) - count(*) from city where id <= 5
+1.1.2 使用近似值
+不完全精确统计时，可以使用explain出来的优化去估算的行数就是一个不错的近似值。
+1.1.3 更复杂的优化
+索引覆盖
+汇总表
+1.2 优化关联查询
+确保on using子句上有索引
+确保group by 和order by的表达式只涉及到一个表中的列，这样mysql才可能使用索引优化
+升级mysql时需要注意：关联语法、运算符优先级等其他可能会发生变化的地方
+1.3 优化子查询
+尽量使用关联查询代替
+1.4 优化group by 和distinct
+1.4.1 优化group by
+索引优化
+无索引时，group by有两种策略来完成：使用临时表或文件排序
+	可以使用 sql_big_result 或者 sql_small_result来让优化器按照我希望的范式运行
+如果对关联查询做分组，并且按照查找表中的某个列进行分组，通常采用查找表的标识列分组的效率会比其他列高
