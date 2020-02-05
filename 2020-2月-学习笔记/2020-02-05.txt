@@ -1,0 +1,56 @@
+1：创建索引
+PUT /customer?pretty
+
+2：列出所有的索引 
+GET /_cat/indices?v
+
+3：往索引中存文档
+PUT /customer/doc/1?pretty
+{
+  "name": "John Doe"
+}
+
+POST /customer/doc?pretty
+{
+  "name": "Jane Doe"
+}
+
+4：查询customer索引中id为1的数据
+GET /customer/doc/1?pretty
+
+5：删除customer索引
+DELETE /customer?pretty
+
+6：替换id为1的文档
+PUT /customer/doc/1?pretty
+{
+  "name": "Jane Doe update"
+}
+
+7：修改id为1的文档
+POST /customer/doc/1/_update?pretty
+{
+  "doc": { "name": "Jane Doe", "age": 20 }
+}
+
+修改age+5
+POST /customer/doc/1/_update?pretty
+{
+  "script" : "ctx._source.age += 5"
+}
+
+8：删除id为2的文档
+DELETE /customer/doc/2?pretty
+
+9：批量插入数据
+POST /customer/doc/_bulk?pretty
+{"index":{"_id":"1"}}
+{"name": "John Doe" }
+{"index":{"_id":"2"}}
+{"name": "Jane Doe" }
+
+10：批量处理数据
+POST /customer/doc/_bulk?pretty
+{"update":{"_id":"1"}}
+{"doc": { "name": "John Doe becomes Jane Doe" } }
+{"delete":{"_id":"2"}}
